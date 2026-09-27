@@ -37,6 +37,7 @@ jobs:
           npm run compact
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Build Contract Bindings
         run: |
