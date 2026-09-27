@@ -31,7 +31,7 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           export PATH="$HOME/.local/bin:$PATH"
-          compact update
+          compact update 0.31.1
           compact --version
           cd preprod-deployment/contracts
           npm run compact

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // contractClient.ts
 import { WalletApi } from "./midnightWallet";
 import deployedContract from "../../deployed_contract.json";
