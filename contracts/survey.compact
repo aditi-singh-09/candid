@@ -101,7 +101,7 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   usedNullifiers.insert(nullifier);
 
   const current = ratingTally.member(disclose(rating)) ? ratingTally.lookup(disclose(rating)) : 0 as Uint<64>;
-  ratingTally.insert(disclose(rating), current + 1);
+  ratingTally.insert(disclose(rating), (current + 1) as Uint<64>);
   totalResponses.increment(1);
 
   if (comment.length() > 0) {
