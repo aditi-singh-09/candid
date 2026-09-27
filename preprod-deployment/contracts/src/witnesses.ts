@@ -1,88 +1,47 @@
-// This file is part of midnightntwrk/example-bboard.
-// Copyright (C) Midnight Foundation
-// SPDX-License-Identifier: Apache-2.0
-// Licensed under the Apache License, Version 2.0 (the "License");
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-/*
- * This file defines the shape of the bulletin board's private state,
- * as well as the single witness function that accesses it.
- */
-
-import { Ledger } from "./managed/bboard/contract/index.js";
+import { Ledger } from "./managed/survey/contract/index.js";
 import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 
-/* **********************************************************************
- * The only hidden state needed by the bulletin board contract is
- * the user's secret key.  Some of the library code and
- * compiler-generated code is parameterized by the type of our
- * private state, so we define a type for it and a function to
- * make an object of that type.
- */
-
-export type BBoardPrivateState = {
-  readonly secretKey: Uint8Array;
+export type SurveyPrivateState = {
+  readonly respondentSecret: Uint8Array;
+  readonly merklePath: [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array];
+  readonly pathDirections: [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
+  readonly hasComment: boolean;
 };
 
-export const createBBoardPrivateState = (secretKey: Uint8Array) => ({
-  secretKey,
+export const createSurveyPrivateState = (
+  respondentSecret: Uint8Array,
+  merklePath?: Uint8Array[],
+  pathDirections?: boolean[],
+  hasComment?: boolean
+): SurveyPrivateState => ({
+  respondentSecret,
+  merklePath: (merklePath ?? Array(10).fill(new Uint8Array(32))) as SurveyPrivateState["merklePath"],
+  pathDirections: (pathDirections ?? Array(10).fill(false)) as SurveyPrivateState["pathDirections"],
+  hasComment: hasComment ?? false,
 });
 
-/* **********************************************************************
- * The witnesses object for the bulletin board contract is an object
- * with a field for each witness function, mapping the name of the function
- * to its implementation.
- *
- * The implementation of each function always takes as its first argument
- * a value of type WitnessContext<L, PS>, where L is the ledger object type
- * that corresponds to the ledger declaration in the Compact code, and PS
- *  is the private state type, like BBoardPrivateState defined above.
- *
- * A WitnessContext has three
- * fields:
- *  - ledger: T
- *  - privateState: PS
- *  - contractAddress: string
- *
- * The other arguments (after the first) to each witness function
- * correspond to the ones declared in Compact for the witness function.
- * The function's return value is a tuple of the new private state and
- * the declared return value.  In this case, that's a BBoardPrivateState
- * and a Uint8Array (because the contract declared a return value of Bytes[32],
- * and that's a Uint8Array in TypeScript).
- *
- * The localSecretKey witness does not need the ledger or contractAddress
- * from the WitnessContext, so it uses the parameter notation that puts
- * only the binding for the privateState in scope.
- */
 export const witnesses = {
-  secretKey: ({
+  respondentSecret: ({
     privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    Uint8Array,
-  ] => [privateState, privateState.secretKey],
+  }: WitnessContext<Ledger, SurveyPrivateState>): [SurveyPrivateState, Uint8Array] =>
+    [privateState, privateState.respondentSecret],
 
   merklePath: ({
     privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array],
-  ] => [privateState, [new Uint8Array(32), new Uint8Array(32), new Uint8Array(32), new Uint8Array(32), new Uint8Array(32)]],
+  }: WitnessContext<Ledger, SurveyPrivateState>): [
+    SurveyPrivateState,
+    [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array]
+  ] => [privateState, privateState.merklePath],
 
   pathDirections: ({
     privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    [boolean, boolean, boolean, boolean, boolean],
-  ] => [privateState, [false, false, false, false, false]],
+  }: WitnessContext<Ledger, SurveyPrivateState>): [
+    SurveyPrivateState,
+    [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean]
+  ] => [privateState, privateState.pathDirections],
+
+  hasComment: ({
+    privateState,
+  }: WitnessContext<Ledger, SurveyPrivateState>): [SurveyPrivateState, boolean] =>
+    [privateState, privateState.hasComment],
 };
