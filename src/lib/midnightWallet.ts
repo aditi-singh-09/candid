@@ -64,7 +64,9 @@ export async function connectWallet(walletId?: string): Promise<{
   }
 
   let api;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (typeof (target.wallet as any).connect === 'function') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     api = await (target.wallet as any).connect('preprod');
   } else {
     api = await target.wallet.enable();
