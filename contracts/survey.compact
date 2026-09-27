@@ -25,7 +25,7 @@ import CompactStandardLibrary;
 // ---------------------------------------------------------------------
 
 export ledger surveyTitle: Opaque<"string">;
-export ledger ratingTally: Map<Uint<8>, Counter>;  // rating 1-5 -> count
+export ledger ratingTally: Map<Uint<8>, Uint<64>>;  // rating 1-5 -> count
 export ledger commentCount: Counter;                // free-text comments submitted (content never on-chain)
 export ledger usedNullifiers: Set<Bytes<32>>;
 export ledger eligibilityRoot: Bytes<32>;           // Merkle root of eligible-respondent leaves
@@ -100,8 +100,8 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   assert(!usedNullifiers.member(nullifier), "already responded to this survey");
   usedNullifiers.insert(nullifier);
 
-  const current = ratingTally.lookup(disclose(rating));
-  ratingTally.insert(disclose(rating), current.increment(1));
+  const current = ratingTally.member(disclose(rating)) ? ratingTally.lookup(disclose(rating)) : 0 as Uint<64>;
+  ratingTally.insert(disclose(rating), current + 1);
   totalResponses.increment(1);
 
   if (comment.length() > 0) {
