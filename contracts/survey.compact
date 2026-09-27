@@ -39,7 +39,7 @@ export ledger totalResponses: Counter;
 witness respondentSecret(): Bytes<32>;
 witness merklePath(): Vector<10, Bytes<32>>;
 witness pathDirections(): Vector<10, Boolean>;
-witness commentText(): Opaque<"string">;  // stays local; only its existence is ever counted
+witness hasComment(): Boolean;  // stays local; true if respondent provided a comment
 
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
@@ -88,7 +88,7 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   const secret = respondentSecret();
   const path = merklePath();
   const directions = pathDirections();
-  const comment = commentText();
+  const commentGiven = hasComment();
 
   const leaf = persistentHash<Bytes<32>>(secret);
   const computedRoot = merkleRootFrom(leaf, path, directions);
@@ -104,7 +104,7 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   ratingTally.insert(disclose(rating), (current + 1) as Uint<64>);
   totalResponses.increment(1);
 
-  if (comment.length() > 0) {
+  if (commentGiven) {
     commentCount.increment(1);
   }
 }
