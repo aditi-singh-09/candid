@@ -71,8 +71,32 @@ export async function connectWallet(walletId?: string): Promise<{
   } else {
     api = await target.wallet.enable();
   }
-  const state = await api.state();
-  const serviceUriConfig = api.serviceUriConfig ? await api.serviceUriConfig() : undefined;
 
-  return { address: state.address, walletName: target.wallet.name, api, serviceUriConfig };
+  let address = "";
+  let serviceUriConfig;
+
+  // Handle both the older DApp Connector (v3) and the newer (v4) API formats
+  if (typeof api.state === 'function') {
+    const state = await api.state();
+    address = state.address;
+    serviceUriConfig = api.serviceUriConfig ? await api.serviceUriConfig() : undefined;
+  } else if (typeof api.getShieldedAddresses === 'function') {
+    const addresses = await api.getShieldedAddresses();
+    address = addresses.shieldedAddress;
+    
+    if (typeof api.getConfiguration === 'function') {
+      const config = await api.getConfiguration();
+      serviceUriConfig = {
+        nodeUri: config.substrateNodeUri,
+        indexerUri: config.indexerUri,
+        proverServerUri: config.proverServerUri || 'http://localhost:6300'
+      };
+    }
+
+    // Polyfill the expected methods so downstream types are happy
+    api.state = async () => ({ address });
+    api.serviceUriConfig = async () => serviceUriConfig;
+  }
+
+  return { address, walletName: target.wallet.name, api, serviceUriConfig };
 }
