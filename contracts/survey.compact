@@ -95,7 +95,7 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   assert(computedRoot == eligibilityRoot, "not an eligible respondent");
 
   const nullifier = persistentHash<Vector<2, Bytes<32>>>(
-    [secret, persistentHash<Opaque<"string">>(surveyTitle)]
+    [pad(32, "survey:nullifier"), secret]
   );
   assert(!usedNullifiers.member(nullifier), "already responded to this survey");
   usedNullifiers.insert(nullifier);
