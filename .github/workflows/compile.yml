@@ -1,0 +1,49 @@
+name: Compile Contract and Commit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/survey.compact'
+      - '.github/workflows/compile.yml'
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Midnight Compact
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        working-directory: ./preprod-deployment/contracts
+        run: npm install
+
+      - name: Compile and Build Contract
+        working-directory: ./preprod-deployment/contracts
+        run: |
+          npm run compact
+          npm run build
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -f preprod-deployment/contracts/src/managed
+          git add -f preprod-deployment/contracts/dist
+          # Only commit if there are changes
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: compile midnight contract artifacts" && git push)
