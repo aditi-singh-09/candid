@@ -8,7 +8,7 @@
 ## Contract Address
 | Network  | Address                          |
 |----------|-----------------------------------|
-| Preprod  | `[CONTRACT ADDRESS — REQUIRED]`    |
+| Preprod  | `091c74ef14aa787e5815a36532da340fe9caa6f381893efbc21b30d3de52172b`    |
 
 ## What This Does
 Candid lets an organizer run a survey where every response is
