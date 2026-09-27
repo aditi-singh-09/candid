@@ -1,5 +1,5 @@
 import * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
-__compactRuntime.checkRuntimeVersion('0.19.0');
+__compactRuntime.checkRuntimeVersion('0.16.0');
 
 const _descriptor_0 = __compactRuntime.CompactTypeBoolean;
 
@@ -55,8 +55,6 @@ class _ContractAddress_0 {
 
 const _descriptor_11 = new _ContractAddress_0();
 
-const _descriptor_12 = new __compactRuntime.CompactTypeUnsignedInteger(4294967295n, 4);
-
 export class Contract {
   witnesses;
   constructor(...args_0) {
@@ -81,26 +79,19 @@ export class Contract {
     }
     this.witnesses = witnesses_0;
     this.circuits = {
-      openSurvey: async (...args_1) => {
+      openSurvey: (...args_1) => {
         if (args_1.length !== 3) {
           throw new __compactRuntime.CompactError(`openSurvey: expected 3 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const title_0 = args_1[1];
         const root_0 = args_1[2];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('openSurvey',
                                      'argument 1 (as invoked from Typescript)',
                                      'survey.compact line 69 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
-        }
-        if (!(typeof (title_0) === 'string')) {
-          __compactRuntime.typeError('openSurvey',
-                                     'argument 1 (argument 2 as invoked from Typescript)',
-                                     'survey.compact line 69 char 1',
-                                     'Opaque<"string">',
-                                     title_0)
         }
         if (!(root_0.buffer instanceof ArrayBuffer && root_0.BYTES_PER_ELEMENT === 1 && root_0.length === 32)) {
           __compactRuntime.typeError('openSurvey',
@@ -109,7 +100,7 @@ export class Contract {
                                      'Bytes<32>',
                                      root_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_7.toValue(title_0).concat(_descriptor_1.toValue(root_0)),
@@ -119,21 +110,20 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._openSurvey_0(context,
-                                                  partialProofData,
-                                                  title_0,
-                                                  root_0);
+        const result_0 = this._openSurvey_0(context,
+                                            partialProofData,
+                                            title_0,
+                                            root_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
-      submitFeedback: async (...args_1) => {
+      submitFeedback: (...args_1) => {
         if (args_1.length !== 2) {
           throw new __compactRuntime.CompactError(`submitFeedback: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const rating_0 = args_1[1];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('submitFeedback',
                                      'argument 1 (as invoked from Typescript)',
                                      'survey.compact line 84 char 1',
@@ -147,7 +137,7 @@ export class Contract {
                                      'Uint<0..256>',
                                      rating_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_2.toValue(rating_0),
@@ -157,36 +147,34 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._submitFeedback_0(context,
-                                                      partialProofData,
-                                                      rating_0);
+        const result_0 = this._submitFeedback_0(context,
+                                                partialProofData,
+                                                rating_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
-      closeSurvey: async (...args_1) => {
+      closeSurvey: (...args_1) => {
         if (args_1.length !== 1) {
           throw new __compactRuntime.CompactError(`closeSurvey: expected 1 argument (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('closeSurvey',
                                      'argument 1 (as invoked from Typescript)',
                                      'survey.compact line 113 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: { value: [], alignment: [] },
           output: undefined,
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._closeSurvey_0(context, partialProofData);
+        const result_0 = this._closeSurvey_0(context, partialProofData);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       }
     };
     this.impureCircuits = {
@@ -200,7 +188,7 @@ export class Contract {
       closeSurvey: this.circuits.closeSurvey
     };
   }
-  async initialState(...args_0) {
+  initialState(...args_0) {
     if (args_0.length !== 1) {
       throw new __compactRuntime.CompactError(`Contract state constructor: expected 1 argument (as invoked from Typescript), received ${args_0.length}`);
     }
@@ -230,7 +218,7 @@ export class Contract {
     state_0.setOperation('openSurvey', new __compactRuntime.ContractOperation());
     state_0.setOperation('submitFeedback', new __compactRuntime.ContractOperation());
     state_0.setOperation('closeSurvey', new __compactRuntime.ContractOperation());
-    const context = __compactRuntime.createCircuitContext('constructor', __compactRuntime.dummyContractAddress(), constructorContext_0.initialZswapLocalState.coinPublicKey, state_0.data, constructorContext_0.initialPrivateState);
+    const context = __compactRuntime.createCircuitContext(__compactRuntime.dummyContractAddress(), constructorContext_0.initialZswapLocalState.coinPublicKey, state_0.data, constructorContext_0.initialPrivateState);
     const partialProofData = {
       input: { value: [], alignment: [] },
       output: undefined,
@@ -309,11 +297,11 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_3.toValue(0n),
                                                                                               alignment: _descriptor_3.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
-    state_0.data = new __compactRuntime.ChargedState(context.callContext.currentQueryContext.state.state);
+    state_0.data = new __compactRuntime.ChargedState(context.currentQueryContext.state.state);
     return {
       currentContractState: state_0,
-      currentPrivateState: context.callContext.currentPrivateState,
-      currentZswapLocalState: context.callContext.currentZswapLocalState
+      currentPrivateState: context.currentPrivateState,
+      currentZswapLocalState: context.currentZswapLocalState
     }
   }
   _persistentHash_0(value_0) {
@@ -325,9 +313,9 @@ export class Contract {
     return result_0;
   }
   _respondentSecret_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.respondentSecret(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('respondentSecret',
                                  'return value',
@@ -342,9 +330,9 @@ export class Contract {
     return result_0;
   }
   _merklePath_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.merklePath(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(Array.isArray(result_0) && result_0.length === 10 && result_0.every((t) => t.buffer instanceof ArrayBuffer && t.BYTES_PER_ELEMENT === 1 && t.length === 32))) {
       __compactRuntime.typeError('merklePath',
                                  'return value',
@@ -359,9 +347,9 @@ export class Contract {
     return result_0;
   }
   _pathDirections_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.pathDirections(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(Array.isArray(result_0) && result_0.length === 10 && result_0.every((t) => typeof(t) === 'boolean'))) {
       __compactRuntime.typeError('pathDirections',
                                  'return value',
@@ -376,9 +364,9 @@ export class Contract {
     return result_0;
   }
   _hasComment_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.hasComment(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(typeof(result_0) === 'boolean')) {
       __compactRuntime.typeError('hasComment',
                                  'return value',
@@ -425,7 +413,7 @@ export class Contract {
                  this._persistentHash_1([h8_0, path_0[9]]);
     return h9_0;
   }
-  async _openSurvey_0(context, partialProofData, title_0, root_0) {
+  _openSurvey_0(context, partialProofData, title_0, root_0) {
     __compactRuntime.queryLedgerState(context,
                                       partialProofData,
                                       [
@@ -458,7 +446,7 @@ export class Contract {
                                        { ins: { cached: false, n: 1 } }]);
     return [];
   }
-  async _submitFeedback_0(context, partialProofData, rating_0) {
+  _submitFeedback_0(context, partialProofData, rating_0) {
     __compactRuntime.assert(_descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                       partialProofData,
                                                                                       [
@@ -625,7 +613,7 @@ export class Contract {
     }
     return [];
   }
-  async _closeSurvey_0(context, partialProofData) {
+  _closeSurvey_0(context, partialProofData) {
     __compactRuntime.assert(_descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                       partialProofData,
                                                                                       [
@@ -660,7 +648,7 @@ export function ledger(stateOrChargedState) {
   const state = stateOrChargedState instanceof __compactRuntime.StateValue ? stateOrChargedState : stateOrChargedState.state;
   const chargedState = stateOrChargedState instanceof __compactRuntime.StateValue ? new __compactRuntime.ChargedState(stateOrChargedState) : stateOrChargedState;
   const context = {
-    callContext: { currentQueryContext: new __compactRuntime.QueryContext(chargedState, __compactRuntime.dummyContractAddress()), currentGasCost: __compactRuntime.emptyRunningCost() },
+    currentQueryContext: new __compactRuntime.QueryContext(chargedState, __compactRuntime.dummyContractAddress()),
     costModel: __compactRuntime.CostModel.initialCostModel()
   };
   const partialProofData = {
@@ -930,7 +918,7 @@ export function ledger(stateOrChargedState) {
   };
 }
 const _emptyContext = {
-  callContext: { currentQueryContext: new __compactRuntime.QueryContext(new __compactRuntime.ContractState().data, __compactRuntime.dummyContractAddress()), currentGasCost: __compactRuntime.emptyRunningCost() }
+  currentQueryContext: new __compactRuntime.QueryContext(new __compactRuntime.ContractState().data, __compactRuntime.dummyContractAddress())
 };
 const _dummyContract = new Contract({
   respondentSecret: (...args) => undefined,
@@ -941,10 +929,4 @@ const _dummyContract = new Contract({
 export const pureCircuits = {};
 export const contractReferenceLocations =
   { tag: 'publicLedgerArray', indices: { } };
-export const expectedVk = {
-  'closeSurvey': '734c9f4e1fa9499b5bfe525937e2af8f2bf1aed76c3b74df51d6ff2ad0dce794',
-  'openSurvey': 'ce9ef01d4ea3890891d7706ae74881f640682939350a6747ed153e9b56a31cfe',
-  'submitFeedback': '485668ca9b6bcce8104fc1147e5f635fbac2cf62da66f6bd9e55b81a8e86333d',
-};
-
 //# sourceMappingURL=index.js.map

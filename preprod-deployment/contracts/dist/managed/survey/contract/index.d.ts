@@ -10,17 +10,17 @@ export type Witnesses<PS> = {
 export type ImpureCircuits<PS> = {
   openSurvey(context: __compactRuntime.CircuitContext<PS>,
              title_0: string,
-             root_0: Uint8Array): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  closeSurvey(context: __compactRuntime.CircuitContext<PS>): Promise<__compactRuntime.CircuitResults<PS, []>>;
+             root_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  closeSurvey(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type ProvableCircuits<PS> = {
   openSurvey(context: __compactRuntime.CircuitContext<PS>,
              title_0: string,
-             root_0: Uint8Array): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  closeSurvey(context: __compactRuntime.CircuitContext<PS>): Promise<__compactRuntime.CircuitResults<PS, []>>;
+             root_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  closeSurvey(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type PureCircuits = {
@@ -29,9 +29,9 @@ export type PureCircuits = {
 export type Circuits<PS> = {
   openSurvey(context: __compactRuntime.CircuitContext<PS>,
              title_0: string,
-             root_0: Uint8Array): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): Promise<__compactRuntime.CircuitResults<PS, []>>;
-  closeSurvey(context: __compactRuntime.CircuitContext<PS>): Promise<__compactRuntime.CircuitResults<PS, []>>;
+             root_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  submitFeedback(context: __compactRuntime.CircuitContext<PS>, rating_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  closeSurvey(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type Ledger = {
@@ -65,9 +65,8 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
   impureCircuits: ImpureCircuits<PS>;
   provableCircuits: ProvableCircuits<PS>;
   constructor(witnesses: W);
-  initialState(context: __compactRuntime.ConstructorContext<PS>): Promise<__compactRuntime.ConstructorResult<PS>>;
+  initialState(context: __compactRuntime.ConstructorContext<PS>): __compactRuntime.ConstructorResult<PS>;
 }
 
 export declare function ledger(state: __compactRuntime.StateValue | __compactRuntime.ChargedState): Ledger;
 export declare const pureCircuits: PureCircuits;
-export declare const expectedVk: Record<string, string>;
