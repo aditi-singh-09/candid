@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'contracts/survey.compact'
-      - '.github/workflows/compile.yml'
   workflow_dispatch:
 
 jobs:
