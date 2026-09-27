@@ -73,7 +73,7 @@ export async function connectWallet(walletId?: string): Promise<{
   }
 
   let address = "";
-  let serviceUriConfig;
+  let serviceUriConfig: { nodeUri: string; indexerUri: string; proverServerUri: string } | undefined;
 
   // Handle both the older DApp Connector (v3) and the newer (v4) API formats
   if (typeof api.state === 'function') {
