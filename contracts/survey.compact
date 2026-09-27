@@ -1,0 +1,100 @@
+// Candid — verifiable participation, private responses
+// Midnight Builder Challenge — Level 3 (First Quarter)
+// Idea: Anonymous Feedback / Survey
+//
+// PRIVACY MODEL
+//   PUBLIC   : survey title, the aggregate rating distribution (1-5
+//              stars), the count of free-text comments submitted, the
+//              set of spent nullifiers, survey open/closed status.
+//   PRIVATE  : which eligible respondent submitted, their exact rating
+//              choice's link back to them, and the full text of any
+//              comment (only its content-commitment hash ever reaches
+//              the circuit, and even that is not required to be
+//              public — see submitFeedback).
+//   PROVED WITHOUT REVEALING: that the caller is an eligible respondent
+//              and has not responded to this survey before — without
+//              revealing which respondent, or linking their identity
+//              to their rating or comment.
+
+pragma language_version >= 0.16;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------
+// Ledger (PUBLIC on-chain state)
+// ---------------------------------------------------------------------
+
+export ledger surveyTitle: Opaque<"string">;
+export ledger ratingTally: Map<Uint<8>, Counter>;  // rating 1-5 -> count
+export ledger commentCount: Counter;                // free-text comments submitted (content never on-chain)
+export ledger usedNullifiers: Set<Bytes<32>>;
+export ledger eligibilityRoot: Bytes<32>;           // Merkle root of eligible-respondent leaves
+export ledger isOpen: Boolean;
+export ledger totalResponses: Counter;
+
+// ---------------------------------------------------------------------
+// Witnesses (PRIVATE — supplied locally by the respondent)
+// ---------------------------------------------------------------------
+
+witness respondentSecret(): Bytes<32>;
+witness respondentPath(): MerkleTreePath<10, Bytes<32>>;
+witness commentText(): Opaque<"string">;  // stays local; only its existence is ever counted
+
+// ---------------------------------------------------------------------
+// Circuits
+// ---------------------------------------------------------------------
+
+// Organizer opens the survey and publishes the Merkle root of every
+// eligible respondent's hashed commitment (e.g. verified event
+// attendees, ticket holders, or any pre-vetted list).
+export circuit openSurvey(title: Opaque<"string">, root: Bytes<32>): [] {
+  surveyTitle = title;
+  eligibilityRoot = root;
+  isOpen = true;
+  totalResponses = default<Counter>;
+  commentCount = default<Counter>;
+  for (const r of 1..6) {
+    ratingTally.insert(disclose(r), default<Counter>);
+  }
+}
+
+// A respondent proves, in zero-knowledge:
+//   1) their secret hashes into a leaf that is a member of eligibilityRoot
+//   2) the nullifier derived from that secret + surveyTitle has not
+//      been used before (one response per respondent, ever)
+// Only the aggregate rating counter changes on-chain. The free-text
+// comment is taken as a witness purely so a future version could commit
+// to it without disclosure — v1 does not even hash it onto the ledger,
+// only counts that a comment accompanied this response.
+export circuit submitFeedback(rating: Uint<8>): [] {
+  assert(isOpen, "survey is closed");
+  assert(rating >= 1 && rating <= 5, "rating must be 1-5");
+
+  const secret = respondentSecret();
+  const path = respondentPath();
+  const comment = commentText();
+
+  const leaf = persistentHash<Bytes<32>>(secret);
+  const computedRoot = merkleTreePathRoot<10, Bytes<32>>(path, leaf);
+  assert(computedRoot == eligibilityRoot, "not an eligible respondent");
+
+  const nullifier = persistentHash<Vector<2, Bytes<32>>>(
+    [secret, persistentHash<Opaque<"string">>(surveyTitle)]
+  );
+  assert(!usedNullifiers.member(nullifier), "already responded to this survey");
+  usedNullifiers.insert(nullifier);
+
+  const current = ratingTally.lookup(disclose(rating));
+  ratingTally.insert(disclose(rating), current.increment(1));
+  totalResponses.increment(1);
+
+  if (comment.length() > 0) {
+    commentCount.increment(1);
+  }
+}
+
+// Organizer closes the survey. Aggregates remain exactly as they are.
+export circuit closeSurvey(): [] {
+  assert(isOpen, "already closed");
+  isOpen = false;
+}

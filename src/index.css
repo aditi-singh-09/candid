@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #1c2230;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Soft dusk gradient behind the drop-box card — a single deliberate
+   ambient moment, not a scattered effect. */
+.dusk-glow {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(95, 168, 160, 0.12) 0%,
+    rgba(232, 115, 95, 0.05) 45%,
+    transparent 70%
+  );
+}
+
+@keyframes seal-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.seal-drop {
+  animation: seal-drop 0.4s ease-out 1;
+}
+
+*:focus-visible {
+  outline: 2px solid #5fa8a0;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
