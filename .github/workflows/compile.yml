@@ -22,16 +22,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Midnight Compact
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Install patch-package
+        run: npm install -g patch-package
+
       - name: Install dependencies
         working-directory: ./preprod-deployment/contracts
-        run: npm install
+        run: npm install --ignore-scripts
 
       - name: Compile and Build Contract
         working-directory: ./preprod-deployment/contracts
@@ -45,5 +48,4 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add -f preprod-deployment/contracts/src/managed
           git add -f preprod-deployment/contracts/dist
-          # Only commit if there are changes
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: compile midnight contract artifacts" && git push)
