@@ -37,13 +37,32 @@ export ledger totalResponses: Counter;
 // ---------------------------------------------------------------------
 
 witness respondentSecret(): Bytes<32>;
-witness respondentPath(): MerkleTreePath<10, Bytes<32>>;
+witness merklePath(): Vector<10, Bytes<32>>;
+witness pathDirections(): Vector<10, Boolean>;
 witness commentText(): Opaque<"string">;  // stays local; only its existence is ever counted
 
+// ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 // Circuits
 // ---------------------------------------------------------------------
 
+circuit merkleRootFrom(
+  leaf: Bytes<32>,
+  path: Vector<10, Bytes<32>>,
+  directions: Vector<10, Boolean>
+): Bytes<32> {
+  const h0 = directions[0] ? persistentHash<Vector<2, Bytes<32>>>([path[0], leaf]) : persistentHash<Vector<2, Bytes<32>>>([leaf, path[0]]);
+  const h1 = directions[1] ? persistentHash<Vector<2, Bytes<32>>>([path[1], h0]) : persistentHash<Vector<2, Bytes<32>>>([h0, path[1]]);
+  const h2 = directions[2] ? persistentHash<Vector<2, Bytes<32>>>([path[2], h1]) : persistentHash<Vector<2, Bytes<32>>>([h1, path[2]]);
+  const h3 = directions[3] ? persistentHash<Vector<2, Bytes<32>>>([path[3], h2]) : persistentHash<Vector<2, Bytes<32>>>([h2, path[3]]);
+  const h4 = directions[4] ? persistentHash<Vector<2, Bytes<32>>>([path[4], h3]) : persistentHash<Vector<2, Bytes<32>>>([h3, path[4]]);
+  const h5 = directions[5] ? persistentHash<Vector<2, Bytes<32>>>([path[5], h4]) : persistentHash<Vector<2, Bytes<32>>>([h4, path[5]]);
+  const h6 = directions[6] ? persistentHash<Vector<2, Bytes<32>>>([path[6], h5]) : persistentHash<Vector<2, Bytes<32>>>([h5, path[6]]);
+  const h7 = directions[7] ? persistentHash<Vector<2, Bytes<32>>>([path[7], h6]) : persistentHash<Vector<2, Bytes<32>>>([h6, path[7]]);
+  const h8 = directions[8] ? persistentHash<Vector<2, Bytes<32>>>([path[8], h7]) : persistentHash<Vector<2, Bytes<32>>>([h7, path[8]]);
+  const h9 = directions[9] ? persistentHash<Vector<2, Bytes<32>>>([path[9], h8]) : persistentHash<Vector<2, Bytes<32>>>([h8, path[9]]);
+  return h9;
+}
 // Organizer opens the survey and publishes the Merkle root of every
 // eligible respondent's hashed commitment (e.g. verified event
 // attendees, ticket holders, or any pre-vetted list).
@@ -67,12 +86,12 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   assert(rating >= 1 && rating <= 5, "rating must be 1-5");
 
   const secret = respondentSecret();
-  const path = respondentPath();
+  const path = merklePath();
+  const directions = pathDirections();
   const comment = commentText();
 
   const leaf = persistentHash<Bytes<32>>(secret);
-  assert(path.leaf == leaf, "path leaf does not match secret");
-  const computedRoot = merkleTreePathRoot<10, Bytes<32>>(path);
+  const computedRoot = merkleRootFrom(leaf, path, directions);
   assert(computedRoot == eligibilityRoot, "not an eligible respondent");
 
   const nullifier = persistentHash<Vector<2, Bytes<32>>>(
