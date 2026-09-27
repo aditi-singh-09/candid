@@ -63,7 +63,12 @@ export async function connectWallet(walletId?: string): Promise<{
     throw new Error("The requested wallet is not installed.");
   }
 
-  const api = await target.wallet.enable();
+  let api;
+  if (typeof (target.wallet as any).connect === 'function') {
+    api = await (target.wallet as any).connect('preprod');
+  } else {
+    api = await target.wallet.enable();
+  }
   const state = await api.state();
   const serviceUriConfig = api.serviceUriConfig ? await api.serviceUriConfig() : undefined;
 
