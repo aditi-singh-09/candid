@@ -51,11 +51,7 @@ export circuit openSurvey(title: Opaque<"string">, root: Bytes<32>): [] {
   surveyTitle = title;
   eligibilityRoot = root;
   isOpen = true;
-  totalResponses = default<Counter>;
-  commentCount = default<Counter>;
-  for (const r of 1..6) {
-    ratingTally.insert(disclose(r), default<Counter>);
-  }
+
 }
 
 // A respondent proves, in zero-knowledge:
