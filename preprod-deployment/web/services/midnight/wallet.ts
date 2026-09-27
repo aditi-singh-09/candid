@@ -50,7 +50,20 @@ export const connectToWallet = (logger: Logger, networkId: string): Promise<Conn
           }),
       }),
       concatMap(async (initialAPI) => {
-        const connectedAPI = await initialAPI.connect(networkId);
+        let connectedAPI;
+        try {
+          if (typeof (initialAPI as any).enable === 'function') {
+            connectedAPI = await (initialAPI as any).enable(networkId);
+          } else {
+            connectedAPI = await initialAPI.connect(networkId);
+          }
+        } catch (e: any) {
+          if (typeof initialAPI.connect === 'function') {
+            connectedAPI = await initialAPI.connect(networkId);
+          } else {
+            throw e;
+          }
+        }
         const connectionStatus = await connectedAPI.getConnectionStatus();
         logger.info(connectionStatus, 'Wallet connector API enabled status');
         return connectedAPI;
