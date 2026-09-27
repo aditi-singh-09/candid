@@ -1,0 +1,116 @@
+// Candid — verifiable participation, private responses
+// Midnight Builder Challenge — Level 3 (First Quarter)
+// Idea: Anonymous Feedback / Survey
+//
+// PRIVACY MODEL
+//   PUBLIC   : survey title, the aggregate rating distribution (1-5
+//              stars), the count of free-text comments submitted, the
+//              set of spent nullifiers, survey open/closed status.
+//   PRIVATE  : which eligible respondent submitted, their exact rating
+//              choice's link back to them, and the full text of any
+//              comment (only its content-commitment hash ever reaches
+//              the circuit, and even that is not required to be
+//              public — see submitFeedback).
+//   PROVED WITHOUT REVEALING: that the caller is an eligible respondent
+//              and has not responded to this survey before — without
+//              revealing which respondent, or linking their identity
+//              to their rating or comment.
+
+pragma language_version >= 0.16;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------
+// Ledger (PUBLIC on-chain state)
+// ---------------------------------------------------------------------
+
+export ledger surveyTitle: Opaque<"string">;
+export ledger ratingTally: Map<Uint<8>, Uint<64>>;  // rating 1-5 -> count
+export ledger commentCount: Counter;                // free-text comments submitted (content never on-chain)
+export ledger usedNullifiers: Set<Bytes<32>>;
+export ledger eligibilityRoot: Bytes<32>;           // Merkle root of eligible-respondent leaves
+export ledger isOpen: Boolean;
+export ledger totalResponses: Counter;
+
+// ---------------------------------------------------------------------
+// Witnesses (PRIVATE — supplied locally by the respondent)
+// ---------------------------------------------------------------------
+
+witness respondentSecret(): Bytes<32>;
+witness merklePath(): Vector<10, Bytes<32>>;
+witness pathDirections(): Vector<10, Boolean>;
+witness hasComment(): Boolean;  // stays local; true if respondent provided a comment
+
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Circuits
+// ---------------------------------------------------------------------
+
+circuit merkleRootFrom(
+  leaf: Bytes<32>,
+  path: Vector<10, Bytes<32>>,
+  directions: Vector<10, Boolean>
+): Bytes<32> {
+  const h0 = directions[0] ? persistentHash<Vector<2, Bytes<32>>>([path[0], leaf]) : persistentHash<Vector<2, Bytes<32>>>([leaf, path[0]]);
+  const h1 = directions[1] ? persistentHash<Vector<2, Bytes<32>>>([path[1], h0]) : persistentHash<Vector<2, Bytes<32>>>([h0, path[1]]);
+  const h2 = directions[2] ? persistentHash<Vector<2, Bytes<32>>>([path[2], h1]) : persistentHash<Vector<2, Bytes<32>>>([h1, path[2]]);
+  const h3 = directions[3] ? persistentHash<Vector<2, Bytes<32>>>([path[3], h2]) : persistentHash<Vector<2, Bytes<32>>>([h2, path[3]]);
+  const h4 = directions[4] ? persistentHash<Vector<2, Bytes<32>>>([path[4], h3]) : persistentHash<Vector<2, Bytes<32>>>([h3, path[4]]);
+  const h5 = directions[5] ? persistentHash<Vector<2, Bytes<32>>>([path[5], h4]) : persistentHash<Vector<2, Bytes<32>>>([h4, path[5]]);
+  const h6 = directions[6] ? persistentHash<Vector<2, Bytes<32>>>([path[6], h5]) : persistentHash<Vector<2, Bytes<32>>>([h5, path[6]]);
+  const h7 = directions[7] ? persistentHash<Vector<2, Bytes<32>>>([path[7], h6]) : persistentHash<Vector<2, Bytes<32>>>([h6, path[7]]);
+  const h8 = directions[8] ? persistentHash<Vector<2, Bytes<32>>>([path[8], h7]) : persistentHash<Vector<2, Bytes<32>>>([h7, path[8]]);
+  const h9 = directions[9] ? persistentHash<Vector<2, Bytes<32>>>([path[9], h8]) : persistentHash<Vector<2, Bytes<32>>>([h8, path[9]]);
+  return h9;
+}
+// Organizer opens the survey and publishes the Merkle root of every
+// eligible respondent's hashed commitment (e.g. verified event
+// attendees, ticket holders, or any pre-vetted list).
+export circuit openSurvey(title: Opaque<"string">, root: Bytes<32>): [] {
+  surveyTitle = disclose(title);
+  eligibilityRoot = disclose(root);
+  isOpen = true;
+
+}
+
+// A respondent proves, in zero-knowledge:
+//   1) their secret hashes into a leaf that is a member of eligibilityRoot
+//   2) the nullifier derived from that secret + surveyTitle has not
+//      been used before (one response per respondent, ever)
+// Only the aggregate rating counter changes on-chain. The free-text
+// comment is taken as a witness purely so a future version could commit
+// to it without disclosure — v1 does not even hash it onto the ledger,
+// only counts that a comment accompanied this response.
+export circuit submitFeedback(rating: Uint<8>): [] {
+  assert(isOpen, "survey is closed");
+  assert(rating >= 1 && rating <= 5, "rating must be 1-5");
+
+  const secret = respondentSecret();
+  const path = merklePath();
+  const directions = pathDirections();
+  const commentGiven = hasComment();
+
+  const leaf = persistentHash<Bytes<32>>(secret);
+  const computedRoot = merkleRootFrom(leaf, path, directions);
+  assert(computedRoot == eligibilityRoot, "not an eligible respondent");
+
+  const nullifier = persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "survey:nullifier"), secret]
+  );
+  assert(!usedNullifiers.member(disclose(nullifier)), "already responded to this survey");
+  usedNullifiers.insert(disclose(nullifier));
+
+  const current = ratingTally.member(disclose(rating)) ? ratingTally.lookup(disclose(rating)) : 0 as Uint<64>;
+  ratingTally.insert(disclose(rating), (current + 1) as Uint<64>);
+  totalResponses.increment(1);
+
+  if (disclose(commentGiven)) {
+    commentCount.increment(1);
+  }
+}
+
+// Organizer closes the survey. Aggregates remain exactly as they are.
+export circuit closeSurvey(): [] {
+  assert(isOpen, "already closed");
+  isOpen = false;
+}

@@ -1,0 +1,98 @@
+{
+  "manifest-version": "1",
+  "compiler-version": "0.34.0",
+  "language-version": "0.26.0",
+  "runtime-version": "0.19.0",
+  "compiler": {
+    "type": "directory",
+    "contract-info.json": {
+      "type": "file",
+      "size": 3191,
+      "hash": "24545095c06667a0c7861a3756408b6fb5cc9d59cb19c7a375edd022b235df1a"
+    }
+  },
+  "contract": {
+    "type": "directory",
+    "index.d.ts": {
+      "type": "file",
+      "size": 3081,
+      "hash": "0723cbc5de5024f0ccde247ba99269ddbb4a6608112b8cff1e20c46bdebac9c0"
+    },
+    "index.js": {
+      "type": "file",
+      "size": 68214,
+      "hash": "d5af019326fa5f300bb92f22003a3d739060c341a4fc1fe108d248ed719bbf2e"
+    },
+    "index.js.map": {
+      "type": "file",
+      "size": 3035,
+      "hash": "e3e86dd9bc1afab8e4b6318df35a2f867adfcf3289781926cc0248c2368f6477"
+    }
+  },
+  "zkir": {
+    "type": "directory",
+    "closeSurvey.bzkir": {
+      "type": "file",
+      "size": 114,
+      "hash": "909431b2e6bd34ff4dea32b6d391494569a399cda257ea8879a9ed4888f3c442"
+    },
+    "closeSurvey.zkir": {
+      "type": "file",
+      "size": 1752,
+      "hash": "3cf252c1e561ba158f7566cd6a6a87db8ca423f91fc2123afc0abc8f3017eff6"
+    },
+    "openSurvey.bzkir": {
+      "type": "file",
+      "size": 188,
+      "hash": "e0813451d8e0ac584f102b785e1ab0b84e1c426d4d4b9fd54572bf7814b05a6d"
+    },
+    "openSurvey.zkir": {
+      "type": "file",
+      "size": 2560,
+      "hash": "f36a64389c735753857863cb57a9c1aec5f2026c78eef9e1db299d1d894bcbfe"
+    },
+    "submitFeedback.bzkir": {
+      "type": "file",
+      "size": 1221,
+      "hash": "dd7ce6f1d616183b5d443fc7ae2891239a0b91f42ad2a74814ddeaa4a3fb3393"
+    },
+    "submitFeedback.zkir": {
+      "type": "file",
+      "size": 18690,
+      "hash": "a7d8add5acbf7fd7cc1679fd5a21b062f79f1e1ae315436fb57fab761e49da29"
+    }
+  },
+  "keys": {
+    "type": "directory",
+    "closeSurvey.prover": {
+      "type": "file",
+      "size": 22539,
+      "hash": "af097f5e56a110127ce03030a0f3f8a1b8da2f886c4bc11cfa545df0fe740750"
+    },
+    "closeSurvey.verifier": {
+      "type": "file",
+      "size": 1351,
+      "hash": "734c9f4e1fa9499b5bfe525937e2af8f2bf1aed76c3b74df51d6ff2ad0dce794"
+    },
+    "openSurvey.prover": {
+      "type": "file",
+      "size": 146802,
+      "hash": "d3f447a75fdf5d3df4a1aff60e7b9c901a81e63d5a909042177b2743bd69d524"
+    },
+    "openSurvey.verifier": {
+      "type": "file",
+      "size": 1351,
+      "hash": "ce9ef01d4ea3890891d7706ae74881f640682939350a6747ed153e9b56a31cfe"
+    },
+    "submitFeedback.prover": {
+      "type": "file",
+      "size": 38497065,
+      "hash": "960f2141dcd7e3d1ed5c2cec645a5b26af72da9af44c026c50eff59a8ff59013"
+    },
+    "submitFeedback.verifier": {
+      "type": "file",
+      "size": 2119,
+      "hash": "485668ca9b6bcce8104fc1147e5f635fbac2cf62da66f6bd9e55b81a8e86333d"
+    }
+  }
+}
