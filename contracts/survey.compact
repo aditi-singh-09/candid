@@ -67,8 +67,8 @@ circuit merkleRootFrom(
 // eligible respondent's hashed commitment (e.g. verified event
 // attendees, ticket holders, or any pre-vetted list).
 export circuit openSurvey(title: Opaque<"string">, root: Bytes<32>): [] {
-  surveyTitle = title;
-  eligibilityRoot = root;
+  surveyTitle = disclose(title);
+  eligibilityRoot = disclose(root);
   isOpen = true;
 
 }
@@ -97,14 +97,14 @@ export circuit submitFeedback(rating: Uint<8>): [] {
   const nullifier = persistentHash<Vector<2, Bytes<32>>>(
     [pad(32, "survey:nullifier"), secret]
   );
-  assert(!usedNullifiers.member(nullifier), "already responded to this survey");
-  usedNullifiers.insert(nullifier);
+  assert(!usedNullifiers.member(disclose(nullifier)), "already responded to this survey");
+  usedNullifiers.insert(disclose(nullifier));
 
   const current = ratingTally.member(disclose(rating)) ? ratingTally.lookup(disclose(rating)) : 0 as Uint<64>;
   ratingTally.insert(disclose(rating), (current + 1) as Uint<64>);
   totalResponses.increment(1);
 
-  if (commentGiven) {
+  if (disclose(commentGiven)) {
     commentCount.increment(1);
   }
 }
