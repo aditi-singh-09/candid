@@ -194,8 +194,7 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     initialPrivateState: { secretKey: secretBytes },
   });
 
-  try {
-    const callPromise = (contract as any).callTx.submitFeedback(BigInt(params.rating));
+  const callPromise = (contract as any).callTx.submitFeedback(BigInt(params.rating));
   const earlyReturnPromise = new Promise<{ early: true }>((resolve) => {
     const check = setInterval(() => {
       if (submittedTxId) {
@@ -221,4 +220,3 @@ function hexToBytes(hex: string): Uint8Array {
   }
   return bytes;
 }
-
