@@ -3,7 +3,7 @@ import { randomSecretHex, isValidRating } from "../lib/crypto";
 import { submitFeedback, isDeployed } from "../lib/contractClient";
 import { WalletApi } from "../lib/midnightWallet";
 
-type Phase = "no-secret" | "ready" | "proving" | "error";
+type Phase = "no-secret" | "ready" | "proving" | "success" | "error";
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -19,6 +19,7 @@ export function FeedbackBooth({
   const [comment, setComment] = useState("");
   const [phase, setPhase] = useState<Phase>("no-secret");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [txResult, setTxResult] = useState<{ txHash: string; explorerUrl: string } | null>(null);
 
   function handleGenerateSecret() {
     setSecret(randomSecretHex());
@@ -30,14 +31,14 @@ export function FeedbackBooth({
     setPhase("proving");
     setErrorMsg(null);
     try {
-      await submitFeedback({
+      const result = await submitFeedback({
         wallet: walletApi,
         respondentSecret: secret,
         rating,
         hasComment: comment.trim().length > 0,
       });
-      // A real success path lands here with a tx hash once
-      // contractClient's live wiring is completed.
+      setTxResult(result);
+      setPhase("success");
     } catch (e) {
       console.error("FULL ERROR:", e);
       setErrorMsg(e instanceof Error ? e.message : "The response could not be submitted.");
@@ -111,21 +112,36 @@ export function FeedbackBooth({
               </p>
             )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={phase === "proving" || !isDeployed()}
-              className="w-full font-mono text-sm bg-teal text-dusk-deep rounded-sm py-3.5 hover:bg-teal-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              title={!isDeployed() ? "No contract deployed yet — see the banner above" : undefined}
-            >
-              {phase === "proving" ? (
-                <>
-                  <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-dusk-deep/30 border-t-dusk-deep animate-spin" />
-                  generating proof…
-                </>
-              ) : (
-                "drop it in, anonymously"
-              )}
-            </button>
+            {phase === "success" && txResult ? (
+              <div className="border border-teal/30 bg-teal/5 rounded-sm px-4 py-4 space-y-2">
+                <p className="text-sm text-teal font-mono">✓ feedback submitted on-chain</p>
+                <p className="text-xs text-chalk/50 font-mono break-all">tx: {txResult.txHash.slice(0, 16)}…</p>
+                <a
+                  href={txResult.explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-teal/70 hover:text-teal underline font-mono"
+                >
+                  view on explorer →
+                </a>
+              </div>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={phase === "proving" || !isDeployed()}
+                className="w-full font-mono text-sm bg-teal text-dusk-deep rounded-sm py-3.5 hover:bg-teal-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                title={!isDeployed() ? "No contract deployed yet — see the banner above" : undefined}
+              >
+                {phase === "proving" ? (
+                  <>
+                    <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-dusk-deep/30 border-t-dusk-deep animate-spin" />
+                    generating proof…
+                  </>
+                ) : (
+                  "drop it in, anonymously"
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
