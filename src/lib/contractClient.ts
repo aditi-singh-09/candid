@@ -112,7 +112,7 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
   
   const api = params.wallet as any;
   if (typeof api?.getShieldedAddresses === "function") {
-  
+    try {
       const addresses = await api.getShieldedAddresses();
       if (addresses?.shieldedCoinPublicKey) shieldedCoinPk = addresses.shieldedCoinPublicKey;
       if (addresses?.shieldedEncryptionPublicKey) shieldedEncPk = addresses.shieldedEncryptionPublicKey;
