@@ -96,7 +96,10 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     ],
   };
 
-  const zkConfigProvider = new FetchZkConfigProvider(zkConfigPath, fetch.bind(window));
+  const zkConfigProvider = new FetchZkConfigProvider(zkConfigPath, (url: string, options?: RequestInit) => {
+    const bust = url.includes("?") ? `&v=${Date.now()}` : `?v=${Date.now()}`;
+    return fetch(url + bust, options);
+  });
   
   const walletConfig = params.wallet.serviceUriConfig ? await params.wallet.serviceUriConfig() : undefined;
   const ONEAM_PROOF_SERVER = walletConfig?.proverServerUri || "https://api-preprod.1am.xyz";
