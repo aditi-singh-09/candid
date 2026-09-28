@@ -3,7 +3,6 @@
 // contractClient.ts
 import { WalletApi } from "./midnightWallet";
 import deployedContract from "../../deployed_contract.json";
-import { blake2b } from "@noble/hashes/blake2b";
 
 export interface DeploymentInfo {
   network: string;
@@ -141,18 +140,21 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     submitTx: async (tx: any) => {
       const txBytes = tx.serialize();
       const txHex = toHex(txBytes);
-      const computedHash = toHex(blake2b(txBytes, { dkLen: 32 }));
       
       if (typeof api?.submitTransaction === "function") {
         const res = await api.submitTransaction(txHex);
+        console.log("[Candid] wallet submitTransaction response:", res);
         let returnedId: string | null = null;
         if (typeof res === "string") {
           returnedId = res;
         } else if (typeof res === "object" && res !== null) {
-          returnedId = res.txHash || res.hash || res.transactionHash || res.txId || res.id;
+          returnedId = res.txHash || res.hash || res.transactionHash || res.txId || res.id || res.submissionId;
+          console.log("[Candid] extracted txId from object:", returnedId, "full obj keys:", Object.keys(res));
         }
-        submittedTxId = (returnedId || computedHash).replace(/^0x/, "");
-        return submittedTxId;
+        if (returnedId) {
+          submittedTxId = returnedId.replace(/^0x/, "");
+        }
+        return submittedTxId || txHex.slice(0, 64);
       }
       throw new Error("No submit method");
     }
@@ -191,12 +193,19 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     }, 500);
   });
 
-  await Promise.race([callPromise, earlyReturnPromise]);
-  const finalTxId = submittedTxId || "0000000000000000000000000000000000000000000000000000000000000000";
+  const callResult = await Promise.race([callPromise, earlyReturnPromise]);
+  // Try to get the hash directly from the Midnight SDK call result first
+  let finalTxId = submittedTxId || "";
+  if (callResult && typeof callResult === "object" && !('early' in callResult)) {
+    const sdkHash = (callResult as any)?.txHash || (callResult as any)?.hash || (callResult as any)?.id;
+    console.log("[Candid] callTx result:", callResult, "sdkHash:", sdkHash);
+    if (sdkHash) finalTxId = sdkHash.replace(/^0x/, "");
+  }
+  finalTxId = finalTxId || "0000000000000000000000000000000000000000000000000000000000000000";
 
   return {
     txHash: finalTxId,
-    explorerUrl: `https://explorer.1am.xyz/tx/${finalTxId.replace(/^0x/, "")}?network=preprod`,
+    explorerUrl: `https://preprod.midnight.network/contract/${contractAddress}`,
   };
 }
 
