@@ -1,6 +1,6 @@
 {
   "network": "preprod",
-  "address": "091c74ef14aa787e5815a36532da340fe9caa6f381893efbc21b30d3de52172b",
-  "deployedAt": null,
+  "address": "546853f3af9c33431e31d9ccffa918c8028c06147a09210e196c6ea674ba874b",
+  "deployedAt": "2026-09-28T06:31:00.000Z",
   "note": "Populate this after running `compact compile` and deploying survey.compact to Preprod. The app refuses to simulate transactions when this is null."
 }
