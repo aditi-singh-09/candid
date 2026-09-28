@@ -96,7 +96,8 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     ],
   };
 
-  const zkConfigProvider = new FetchZkConfigProvider(zkConfigPath, (url: string, options?: RequestInit) => {
+  const zkConfigProvider = new FetchZkConfigProvider(zkConfigPath, (input: RequestInfo | URL, options?: RequestInit) => {
+    let url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
     const bust = url.includes("?") ? `&v=${Date.now()}` : `?v=${Date.now()}`;
     return fetch(url + bust, options);
   });
