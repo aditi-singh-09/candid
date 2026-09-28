@@ -21,15 +21,15 @@ https://candid-eight-omega.vercel.app
 - 🔍 **Contract on Midnight Explorer:** [View Preprod Contract](https://preprod.midnightexplorer.com/contracts/0x4920ebcd439f44d754d337de7acd87d2ca39279f33902b7331d3d42820de2357)
 - ⚡ **Confirmed On-Chain Transaction:** [View Extrinsic on 1AM Explorer](https://explorer.1am.xyz/tx/99e43bf1ab1b923bd3cc68fd8cb802ed3b8a8ffb61b6ba74c3e6a02eed90adbf?network=preprod)
 
-![Preprod Contract Explorer](./screenshots/contract%20onchain.png)
+![Preprod Contract Explorer](./screenshots/contract-onchain.png)
 
 ## What This Does
 Candid lets an organizer run a survey where every response is provably from an eligible, un-reused respondent, while the response itself — the rating and any free-text comment — is never linked back to that respondent. Only the aggregate 1-5 star distribution and a comment count are ever public.
 
 The application generates a client-side zero-knowledge proof, pays network fees using Midnight tDUST, balances the transaction with 1AM Wallet or Lace, and submits the proof on-chain to the Preprod network, leaving only a cryptographic nullifier and updating the anonymous rating tally.
 
-![Interactive Product UI](./screenshots/product%20ui.png)
-![Feedback UI](./screenshots/feedback%20ui.png)
+![Interactive Product UI](./screenshots/product-ui.png)
+![Feedback UI](./screenshots/feedback-ui.png)
 
 ## Privacy Model
 - **PUBLIC:** 
@@ -86,7 +86,7 @@ All 12 tests pass, covering:
 - `isValidRating` — accepts 1–5, rejects 0, 6, and non-integers
 - `randomSecretHex` — uniqueness, correct hex length
 
-![Test Output](./screenshots/test%20output.png)
+![Test Output](./screenshots/test-output.png)
 
 ## CI/CD
 On every push and pull request to `main`, the GitHub Actions pipeline (`.github/workflows/ci.yml`) checks out the code, installs Node 24, installs dependencies, attempts to compile the Compact contract, runs ESLint, runs the full Vitest suite, and produces a production build — failing the run if any step errors.
