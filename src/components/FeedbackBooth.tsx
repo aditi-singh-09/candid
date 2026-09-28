@@ -39,6 +39,7 @@ export function FeedbackBooth({
       // A real success path lands here with a tx hash once
       // contractClient's live wiring is completed.
     } catch (e) {
+      console.error("FULL ERROR:", e);
       setErrorMsg(e instanceof Error ? e.message : "The response could not be submitted.");
       setPhase("error");
     }
