@@ -77,24 +77,7 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
   const dummyPath = Array.from({ length: 10 }, () => new Uint8Array(32));
   const dummyDirections = Array.from({ length: 10 }, () => false);
 
-  const witnesses = {
-    respondentSecret: <PS>(context: WitnessContext<PS>): [PS, Uint8Array] => [
-      context.privateState,
-      secretBytes,
-    ],
-    merklePath: <PS>(context: WitnessContext<PS>): [PS, Uint8Array[]] => [
-      context.privateState,
-      dummyPath,
-    ],
-    pathDirections: <PS>(context: WitnessContext<PS>): [PS, boolean[]] => [
-      context.privateState,
-      dummyDirections,
-    ],
-    hasComment: <PS>(context: WitnessContext<PS>): [PS, boolean] => [
-      context.privateState,
-      params.hasComment,
-    ],
-  };
+
 
   const zkConfigProvider = new FetchZkConfigProvider(zkConfigPath, (input: RequestInfo | URL, options?: RequestInit) => {
     let url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -184,14 +167,18 @@ export async function submitFeedback(params: SubmitFeedbackParams): Promise<TxRe
     midnightProvider,
   };
 
-  const withWitnessesFn = CompiledContract.withWitnesses as any;
-  const compiledContract = withWitnessesFn(witnesses)(CompiledSurveyContract);
+
 
   const contract = await findDeployedContract(providers, {
     contractAddress: contractAddress,
-    compiledContract,
+    compiledContract: CompiledSurveyContract,
     privateStateId: `survey-${params.respondentSecret.slice(0, 16)}`,
-    initialPrivateState: { secretKey: secretBytes },
+    initialPrivateState: { 
+      respondentSecret: secretBytes,
+      merklePath: dummyPath,
+      pathDirections: dummyDirections,
+      hasComment: params.hasComment,
+    },
   });
 
   const callPromise = (contract as any).callTx.submitFeedback(BigInt(params.rating));
