@@ -1,14 +1,20 @@
 # Candid
-![CI](https://github.com/YOUR_USERNAME/candid/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/aditi-singh-09/candid/actions/workflows/ci.yml/badge.svg)
 > Verifiable participation, private responses. Built on Midnight.
 
 ## Live Demo
-[LIVE URL — add after deploying, e.g. Vercel/Netlify]
+🔗 [candid-eight-omega.vercel.app](https://candid-eight-omega.vercel.app)
 
 ## Contract Address
-| Network  | Address                          |
-|----------|-----------------------------------|
-| Preprod  | `091c74ef14aa787e5815a36532da340fe9caa6f381893efbc21b30d3de52172b`    |
+| Network  | Address | Explorer |
+|----------|---------|----------|
+| Preprod  | `546853f3af9c33431e31d9ccffa918c8028c06147a09210e196c6ea674ba874b` | [View on Midnight Explorer](https://preprod.midnightexplorer.com/contracts/0x4920ebcd439f44d754d337de7acd87d2ca39279f33902b7331d3d42820de2357) |
+
+## Sample Transaction
+A live `submitFeedback` transaction submitted successfully on Preprod:
+
+🔗 [View on 1AM Explorer](https://explorer.1am.xyz/tx/99e43bf1ab1b923bd3cc68fd8cb802ed3b8a8ffb61b6ba74c3e6a02eed90adbf?network=preprod)
+
 
 ## What This Does
 Candid lets an organizer run a survey where every response is
